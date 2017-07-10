@@ -106,15 +106,18 @@ public class DAO<T> {
 	 * @param sql£ºsqlÓï¾ä
 	 * @param args£ºÌî³äsqlÓï¾äµÄÕ¼Î»·û
 	 */
-	public void update(String sql, Object...args) {
+	public int update(String sql, Object...args) {
+		int result = 0;
 		Connection connection = null;
 		try {
 			connection = JdbcUtills.getConnection();
-			queryRunner.update(connection, sql, args);
+			result = queryRunner.update(connection, sql, args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			JdbcUtills.releaseConnection(connection);
 		}
+		return result;
+		
 	}
 }

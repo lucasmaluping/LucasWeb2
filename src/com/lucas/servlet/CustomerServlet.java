@@ -5,7 +5,9 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,13 +15,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.startup.UserConfig;
+
+import com.lucas.contents.UserContent;
 import com.lucas.dao.CustomerDAO;
+import com.lucas.dao.UserDao;
 import com.lucas.dao.factory.CustomerDAOFactory;
 import com.lucas.dao.impl.CustomerDAOJdbcImpl;
 import com.lucas.dao.impl.CustomerDAOXMLImpl;
+import com.lucas.dao.impl.UserDaoJdbcImpl;
 import com.lucas.domain.CriteriaCustomer;
 import com.lucas.domain.Customer;
+import com.lucas.domain.User;
 import com.lucas.utils.JSONUtils;
+import com.mysql.jdbc.Connection;
 
 /**
  * Servlet implementation class CustomerServlet
@@ -30,6 +39,7 @@ public class CustomerServlet extends HttpServlet {
 //	private CustomerDAO customerDAO = new CustomerDAOJdbcImpl();
 //	private CustomerDAO customerDAO = new CustomerDAOXMLImpl();
 	private CustomerDAO customerDAO = CustomerDAOFactory.getInstance().getCustomerDAO();
+	private UserDao userDao = new UserDaoJdbcImpl();
     public CustomerServlet() {
         super();
     }
@@ -115,6 +125,7 @@ public class CustomerServlet extends HttpServlet {
 		resp.sendRedirect("query.do");
 	}
 	
+	
 	@SuppressWarnings("unused")
 	private void edit(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 		System.out.println("edit");
@@ -148,6 +159,36 @@ public class CustomerServlet extends HttpServlet {
 		PrintWriter writer = resp.getWriter();
 		writer.write(result);
 	}
+	
+	@SuppressWarnings("unused")
+	private void queryUser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		System.out.println("queryUser");
+//		Enumeration<String> parameterNames = req.getParameterNames();
+//		while(parameterNames.hasMoreElements()) {
+//			System.out.println("name£º" + parameterNames.nextElement());
+//		}
+		String result = "error";
+		String name = req.getParameter("name");
+		String password = req.getParameter("password");
+		
+		List<User> users = userDao.getAll();
+		
+		
+		
+		long count = userDao.getCountWithName(name);
+		if(count > 0) {
+			System.out.println("...ok..");
+			for(User user : users) {
+				if(user.getName().equals(name) && user.getPassword().equals(password)) {
+					result = "ok";
+				}
+			}
+		}
+		
+//		String result = new JSONUtils().parseToJson(users);
+		PrintWriter writer = resp.getWriter();
+		writer.write(result);
+	}
 
 
 	@SuppressWarnings("unused")
@@ -171,6 +212,30 @@ public class CustomerServlet extends HttpServlet {
 		Customer customer = new Customer(name, address, phone);
 		customerDAO.save(customer);
 		resp.sendRedirect("success.jsp");
+		
+	}
+	
+	@SuppressWarnings("unused")
+	private void addUser(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+		String msg = UserContent.error;
+		System.out.println("addUser");
+		String name = req.getParameter("name");
+		String password = req.getParameter("password");
+		String age = req.getParameter("age");
+		String gender = req.getParameter("gender");
+		long countWithName = userDao.getCountWithName(name);
+		if(countWithName > 0) {
+			msg = UserContent.error_user_exit;
+		} else {
+			User user = new User(name, password, "", age, gender);
+			System.out.println("...user:" + user.toString());
+			int result = userDao.save(user);
+			if(result > 0) {
+				msg = UserContent.ok;
+			}
+		}
+		PrintWriter writer = resp.getWriter();
+		writer.write(msg);
 		
 	}
 	
