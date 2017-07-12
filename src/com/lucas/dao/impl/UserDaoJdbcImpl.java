@@ -20,6 +20,8 @@ public class UserDaoJdbcImpl extends DAO<User> implements UserDao{
 		String sql = "select count(id) from user where name=?";
 		return getForValue(sql, name);
 	}
+	
+	
 
 	@Override
 	public int save(User user) {
@@ -27,6 +29,12 @@ public class UserDaoJdbcImpl extends DAO<User> implements UserDao{
 		String sql = "insert into user values (null,?,?,?,?,?)";
 		result = update(sql, user.getName(), user.getAge(), user.getPassword(), user.getGender(), user.getAvator());
 		return result;
+	}
+
+	@Override
+	public User getUserWithName(String name) {
+		String sql = "select * from user where name = ?";
+		return get(sql, name);
 	}
 
 }

@@ -4,4 +4,5 @@ public class UserContent {
 	public static final String ok = "ok";
 	public static final String error = "error";
 	public static final String error_user_exit = "user_already_exit";
+	public static final String null_name = "null_name";
 }

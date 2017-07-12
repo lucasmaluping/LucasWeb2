@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.startup.UserConfig;
 
+import com.alibaba.fastjson.JSON;
 import com.lucas.contents.UserContent;
 import com.lucas.dao.CustomerDAO;
 import com.lucas.dao.UserDao;
@@ -224,21 +225,47 @@ public class CustomerServlet extends HttpServlet {
 		String age = req.getParameter("age");
 		String gender = req.getParameter("gender");
 		long countWithName = userDao.getCountWithName(name);
-		if(countWithName > 0) {
-			msg = UserContent.error_user_exit;
-		} else {
-			User user = new User(name, password, "", age, gender);
-			System.out.println("...user:" + user.toString());
-			int result = userDao.save(user);
-			if(result > 0) {
-				msg = UserContent.ok;
-			}
-		}
 		PrintWriter writer = resp.getWriter();
+		if(name != null){
+			if(countWithName > 0) {
+				msg = UserContent.error_user_exit;
+			} else {
+				User user = new User(name, password, "", age, gender);
+				System.out.println("...user:" + user.toString());
+				int result = userDao.save(user);
+				if(result > 0) {
+					msg = UserContent.ok;
+				}
+			}
+		} else {
+			msg = UserContent.null_name;
+		}
 		writer.write(msg);
-		
 	}
 	
-	
+	@SuppressWarnings("unused")
+	private void queryUserWithName(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		System.out.println("queryUserWithName");
+		String result = "error";
+		String name = req.getParameter("name");
+		
+		User user = userDao.getUserWithName(name);
+		System.out.println("...userwithName:"+ user.toString());
+		
+		PrintWriter writer = resp.getWriter();
+		
+		writer.write(JSON.toJSON(user).toString());
+		
+//		long count = userDao.getCountWithName(name);
+//		if(count > 0) {
+//			System.out.println("...ok..");
+//			for(User user : users) {
+//				if(user.getName().equals(name) && user.getPassword().equals(password)) {
+//					result = "ok";
+//				}
+//			}
+		
+		
+		}
 	
 }
