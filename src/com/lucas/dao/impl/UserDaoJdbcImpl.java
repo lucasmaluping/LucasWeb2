@@ -37,4 +37,11 @@ public class UserDaoJdbcImpl extends DAO<User> implements UserDao{
 		return get(sql, name);
 	}
 
+	@Override
+	public void update(String url, String name) {
+		String sql = "update user set avator = ? WHERE name = ?";
+		int a = update(sql, url, name);
+//		System.out.println("a....." + a);
+	}
+
 }
